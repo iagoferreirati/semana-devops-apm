@@ -1,0 +1,48 @@
+---
+- name: Update cache S.O
+  apt:
+    update_cache: yes
+
+- name: Install npm
+  apt:
+    name: npm
+    state: present
+
+- name: Create directory api
+  file:
+    path: /api-account
+    state: directory
+    owner: ubuntu
+
+
+- name: Copy files api
+  copy:
+    owner: ubuntu
+    group: ubuntu
+    src: "{{ item }}"
+    dest: /api-account
+  with_fileglob:
+    - "files/*"
+
+- name: Install packages based on package.json.
+  npm:
+    path: /api-account 
+
+- name: Install packages based on package.json.
+  npm:
+    name: elastic-apm-node
+    path: /api-account 
+
+- name: Install pm2 startup
+  shell: sudo npm install pm2 -g
+
+- name: pm2 startup
+  shell: sudo pm2 startup
+
+- name: pm2 start
+  shell: sudo pm2 start /api-account/server.js --name "api-account"
+
+- name: pm2 save
+  shell: sudo pm2 save      
+...
+
